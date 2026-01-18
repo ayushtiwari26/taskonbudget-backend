@@ -47,13 +47,13 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "pg": "^8.17.1",
+    "prisma": "^7.2.0",
     "razorpay": "^2.9.6",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.3",
     "stripe": "^20.2.0",
-    "swagger-ui-express": "^5.0.1",
-    "prisma": "^7.2.0"
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -71,6 +71,7 @@
     "@types/passport-local": "^1.0.38",
     "@types/pg": "^8.16.0",
     "@types/supertest": "^6.0.2",
+    "@vercel/node": "^5.5.23",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
