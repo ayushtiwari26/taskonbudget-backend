@@ -1,0 +1,131 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TaskStatus {
+  SUBMITTED
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  REFUNDED
+}
+
+enum Region {
+  INDIA
+  FOREIGN
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  password     String
+  name         String         @default("User")
+  role         Role           @default(USER)
+  region       Region         @default(INDIA)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  tasks        Task[]
+  refreshTokens RefreshToken[]
+  payments     Payment[]
+  messages     ChatMessage[]
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Task {
+  id              String          @id @default(cuid())
+  displayId       Int             @unique @default(autoincrement())
+  clientId        String
+  client          User            @relation(fields: [clientId], references: [id])
+  title           String
+  description     String
+  suggestedBudget Float
+  currency        String
+  status          TaskStatus      @default(SUBMITTED)
+  urgency         String
+  targetDate      DateTime
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  aiAnalysis      TaskAIAnalysis?
+  files           TaskFile[]
+  messages        ChatMessage[]
+  payments        Payment[]
+}
+
+model TaskAIAnalysis {
+  id               String   @id @default(cuid())
+  taskId           String   @unique
+  task             Task     @relation(fields: [taskId], references: [id])
+  category         String
+  complexity       String
+  recommendedPrice Float
+  priorityScore    Int
+  riskFlags        String[]
+  rawAnalysis      Json
+  createdAt        DateTime @default(now())
+}
+
+model TaskFile {
+  id        String   @id @default(cuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id])
+  fileName  String
+  fileKey   String   @unique
+  mimeType  String
+  size      Int
+  data      Bytes    // Store file binary data
+  createdAt DateTime @default(now())
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id])
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id])
+  content   String
+  type      String   @default("text") // text, file_link
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id               String        @id @default(cuid())
+  taskId           String
+  task             Task          @relation(fields: [taskId], references: [id])
+  clientId         String
+  client           User          @relation(fields: [clientId], references: [id])
+  amount           Float
+  currency         String
+  provider         String        // "razorpay" or "stripe"
+  providerPaymentId String       @unique
+  status           PaymentStatus @default(PENDING)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
